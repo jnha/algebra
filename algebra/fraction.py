@@ -6,8 +6,19 @@ R = TypeVar('R')
 
 
 def gcd(*values):
+    """Calculates the greatest common denominator of the values
+
+    >>> gcd()
+    0
+    >>> gcd(2)
+    2
+    >>> gcd(5, 10)
+    5
+    >>> gcd(6,15,10)
+    1
+    """
     if not values:
-        raise ValueError('No values to have denominators')
+        return 0
     if len(values) == 2:
         a, b = values
         while b:
@@ -20,6 +31,16 @@ def gcd(*values):
 
 
 def is_fraction(other) -> bool:
+    """Checks if a value is a fraction (has a numerator and denominator)
+
+    Integers are fractions (they all have denominator 1)
+    >>> is_fraction(1)
+    True
+
+    Floats are not fractions
+    >>> is_fraction(1.)
+    False
+    """
     return hasattr(other, 'numerator') and hasattr(other, 'denominator')
 
 
@@ -30,12 +51,27 @@ class Fraction(Generic[R]):
         self.denominator = denominator
 
     def as_divmod(self) -> tuple[R, R]:
+        """Calculates the divmod of the numerator and denominator
+
+        >>> Fraction(5,4).as_divmod()
+        (1, 1)
+        """
         return divmod(self.numerator, self.denominator)
 
     def as_ratio(self) -> tuple[R, R]:
+        """Gives the numerator and denominator as a tuple
+
+        >>> Fraction(4, 3).as_ratio()
+        (4, 3)
+        """
         return (self.numerator, self.denominator)
 
     def simplify(self) -> Fraction[R]:
+        """Simplifies the fraction
+
+        >>> Fraction(16, 8).simplify()
+        Fraction(2, 1)
+        """
         g = gcd(self.numerator, self.denominator)
         if not g:
             return self  # No simplification necessary
@@ -45,15 +81,30 @@ class Fraction(Generic[R]):
         return f'Fraction({repr(self.numerator)}, {repr(self.denominator)})'
 
     def __str__(self) -> str:
+        """Shows values as a fraction
+
+        >>> str(Fraction(1,3))
+        '1/3'
+        """
         return f'{self.numerator}/{self.denominator}'
 
     def __abs__(self) -> Fraction[R]:
+        """Gives the absolute value of the fraction
+
+        >>> abs(Fraction(-1, -1))
+        Fraction(1, 1)
+        """
         return Fraction(abs(self.numerator), abs(self.denominator))
 
     def __pos__(self) -> Fraction[R]:
         return Fraction(+self.numerator, self.denominator)
 
     def __neg__(self) -> Fraction[R]:
+        """ Reverses the sign of the numerator
+
+        >>> -Fraction(1, 5)
+        Fraction(-1, 5)
+        """
         return Fraction(-self.numerator, self.denominator)
 
     def __add__(self, other) -> Fraction:
@@ -118,6 +169,24 @@ class Fraction(Generic[R]):
         return other * ~self
 
     def __eq__(self, other):
+        """Fraction equality
+
+        n1/d1 == n2/d2 if there exists c1, c2 not equal to 0 such that
+        n1/d1 * c1 == n2/d2 * c2
+
+        >>> Fraction(1, 1) == Fraction(5, 5)
+        True
+        >>> Fraction(1, 2) == Fraction(1, 3)
+        False
+        >>> Fraction(0, 10) == Fraction(0, 120)
+        True
+        >>> Fraction(0, 0) == Fraction(0, 0)
+        True
+        >>> Fraction(1, 0) == Fraction(5, 0)
+        True
+        >>> Fraction(0, 0) == Fraction(1, 0)
+        False
+        """
         if not is_fraction(other):
             if not self.denominator:
                 return False
@@ -139,4 +208,4 @@ class Fraction(Generic[R]):
                 other.numerator * self.denominator)
 
     def __hash__(self):
-        return hash(self.simplify().as_integer_ratio())
+        return hash(self.simplify().as_ratio())
