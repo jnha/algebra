@@ -21,12 +21,23 @@ class Univariate(Generic[R]):
     """Univariate polynomials with integer exponents
 
     implimented as a tuple
+
+    The type of the coefficients is intended to be a ring but
+    - can also be a rng as no operations rely on a 1
+    - can be a semi-ring but unary minus, subtraction,
+      and operations depending on them will not work
+    The coefficients must have a 0, it must be the default value of the type
+    (return value of empty constructor), and it must be falsey
     """
     def __init__(self, *coefficients: R) -> None:
         end = next((len(coefficients)-i
                     for i, c in enumerate(reversed(coefficients)) if c),
                    -1)
         self.coeffs = coefficients[:end]
+        if self.coeffs:
+            self.zero = type(self.coeffs[0])()
+        if self.zero:
+            raise ValueError(f'Type {type(self.zero)} has a truthy default value {self.zero}')
 
     def degree(self) -> int:
         """Return the degree of the polynomial
@@ -68,8 +79,6 @@ class Univariate(Generic[R]):
         return len(self.coeffs)
 
     def __getitem__(self, key) -> R:
-        if isinstance(key, int) and key > len(self):
-            return 0
         return self.coeffs[key]
 
     def __iter__(self):
@@ -88,27 +97,33 @@ class Univariate(Generic[R]):
 
     def __add__(self, other) -> Univariate[R]:
         return Univariate(*(s+o for s, o
-                          in zip_longest(self, other, fillvalue=0)))
+                          in zip_longest(self, other, fillvalue=self.zero)))
 
     def __radd__(self, other) -> Univariate[R]:
         return self + other
 
     def __mul__(self, other) -> Univariate[R]:
-        out = [0] * (len(self) + len(other))
+        if not self:
+            return self  # zero times zero is zero
+        out = [self.zero] * (len(self) + len(other))
         for i, s in self:
             for j, o in other:
                 out[i+j] += s*o
         return Univariate(*out)
 
     def __rmul__(self, other) -> Univariate[R]:
-        out = [0] * (len(self) + len(other))
+        if not self:
+            return self  # zero times zero is zero
+        out = [self.zero] * (len(self) + len(other))
         for i, s in self:
             for j, o in other:
                 out[i+j] += o*s
         return Univariate(*out)
 
     def __lshift__(self, i):
-        return Univariate(*(0,)*i, *self)
+        if not self:  # shifting 0 gives 0
+            return self
+        return Univariate(*(self.zero,)*i, *self)
 
     def __rshift__(self, i):
         return Univariate(*self[i:])
