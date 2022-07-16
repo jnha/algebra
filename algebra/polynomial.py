@@ -37,7 +37,8 @@ class Univariate(Generic[R]):
         if self.coeffs:
             self.zero = type(self.coeffs[0])()
         if self.zero:
-            raise ValueError(f'Type {type(self.zero)} has a truthy default value {self.zero}')
+            raise ValueError(f'Type {type(self.zero)} has a truthy default '
+                             f'value {self.zero}')
 
     def degree(self) -> int:
         """Return the degree of the polynomial
