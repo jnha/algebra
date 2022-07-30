@@ -1,7 +1,6 @@
 """Number Theory
 
-Implementations specific to the integers, rational numbers,
-or modular arithmetic. Because these constructions are easy to work with,
-non-specific algorithms may be prototyped here with these specific types
-before being generalized.
+Constructions on the integers.
+Because working with concrete types is easier than abstract ones,
+non-specific algorithms may be prototyped here before being generalized.
 """
