@@ -4,7 +4,6 @@ Univariate polynomials over the integers
 from __future__ import annotations
 
 from itertools import zip_longest
-from math import gcd
 
 
 class IntPoly:
