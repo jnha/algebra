@@ -4,6 +4,7 @@ Univariate polynomials over the integers
 from __future__ import annotations
 
 from itertools import zip_longest
+from math import gcd
 
 
 class IntPoly:
@@ -39,15 +40,24 @@ class IntPoly:
             for i, c in enumerate(self) if c)[3:]
         )
 
-    # -- Equality --
+    # -- Order --
+    def __lt__(self, other):
+        return self.coeffs[::-1] < other.coeffs
+
+    def __le__(self, other):
+        return self.coeffs[::-1] <= other.coeffs
+
     def __eq__(self, other):
-        """
-        >>> IntPoly(1, 2, 3) == IntPoly(1, 2, 3)
-        True
-        >>> IntPoly(1, 2, 4) == (1, 2, 4)
-        True
-        """
-        return self.coeffs == other
+        return self.coeffs == other.coeffs
+
+    def __ne__(self, other):
+        return self.coeffs != other.coeffs
+
+    def __gt__(self, other):
+        return self.coeffs[::-1] > other.coeffs
+
+    def __ge__(self, other):
+        return self.coeffs[::-1] >= other.coeffs
 
     def __hash__(self):
         return hash(self.coeffs)
@@ -99,3 +109,20 @@ class IntPoly:
 
     def __rshift__(self, i):
         return IntPoly(*self[i:])
+
+
+"""
+def polygcd(a: IntPoly, b: IntPoly) -> list[IntPoly]:
+    r = [a, b]
+    d = len(a) - len(b)
+    beta = -1 if d % 2 else 1
+    psi = -1
+    gamma = a[-1]
+    while r[-1] != 0:
+        psi = (gamma)**d//(psi**(d-1))
+        d = len(r[-2]) - len(r[-1])
+        beta = -gamma * psi**d
+        gamma = r[-1][-1]
+        r.append(rem(gamma**(d+1)*r[-2], r[-1]) // beta)
+    return r
+"""

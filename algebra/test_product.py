@@ -1,4 +1,4 @@
-from product import Product
+from algebra.product import Product
 
 
 def test_product_tuple():
